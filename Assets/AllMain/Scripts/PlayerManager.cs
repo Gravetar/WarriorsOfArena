@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
+    private Player _player;
+
     private MyPlayerInput _input;
     private Animator _animator;
     public int AttackStatus=0;
@@ -40,6 +42,7 @@ public class PlayerManager : MonoBehaviour
         _animator = GetComponent<Animator>();
 
         Weapons = MyDataBase.GetWeapons();
+       _player = MyDataBase.GetPlayerById(3);
 
         ActivateWeapon(0);
     }
@@ -80,8 +83,24 @@ public class PlayerManager : MonoBehaviour
         }
         else if (AttackStatus == 2 && _canAttack)
         {
+            _canAttack = false;
+            AttackStatus = 3;
+            Debug.Log("Attack" + _canAttack);
+
+            _animator.SetInteger("Attack", AttackStatus);
+        }
+        else if (AttackStatus == 3 && _canAttack)
+        {
+            _canAttack = false;
+            AttackStatus = 4;
+            Debug.Log("Attack" + _canAttack);
+
+            _animator.SetInteger("Attack", AttackStatus);
+        }
+        else if (AttackStatus == 4 && _canAttack)
+        {
+            _canAttack = false;
             AttackStatus = 0;
-            _canAttack = true;
             Debug.Log("Attack" + _canAttack);
 
             _animator.SetInteger("Attack", AttackStatus);
@@ -94,7 +113,9 @@ public class PlayerManager : MonoBehaviour
             weapon.SetActive(false);
         }
         WeaponsVisual[idWeapon].SetActive(true);
-        _animator.SetFloat("AttackSpeed", Weapons[idWeapon].AttackSpeed);
+        float bonusAttackSpeed = (float)_player.Dexterity / 200;
+        if (bonusAttackSpeed > 2.0f) bonusAttackSpeed = 2;
+        _animator.SetFloat("AttackSpeed", Weapons[idWeapon].AttackSpeed + bonusAttackSpeed);
         IdActiveWeapon = idWeapon;
     }
 
@@ -102,13 +123,14 @@ public class PlayerManager : MonoBehaviour
     {
         if (type == "Block")
         {
-            Debug.Log("Block");
+            //Debug.Log("Block");
 
             _animator.SetBool("Block", true);
+            _animator.SetFloat("Speed", 2);
         }
         else
         {
-            Debug.Log("UnBlock");
+            //Debug.Log("UnBlock");
 
             _animator.SetBool("Block", false);
         }
@@ -124,8 +146,8 @@ public class PlayerManager : MonoBehaviour
         NowEnemies = NowEnemies.Distinct().ToList();
         foreach (GameObject enemy in NowEnemies)
         {
-            enemy.GetComponent<EnemyManager>().Health -= Weapons[IdActiveWeapon].Damage;
-            Debug.Log(Weapons[IdActiveWeapon].Damage);
+            enemy.GetComponent<EnemyManager>().Health -= Weapons[IdActiveWeapon].Damage + _player.Strength;
+            Debug.Log(string.Format("{0} + {1}", Weapons[IdActiveWeapon].Damage, _player.Strength));
             if (enemy.GetComponent<EnemyManager>().Health <= 0) Destroy(enemy);
         }
 

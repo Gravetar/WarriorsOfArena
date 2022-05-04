@@ -41,19 +41,36 @@ static class MyDataBase
 
         return TempListWeapons;
     }
-
-    /// <summary> Ётот метод выполн€ет запрос query и возвращает ответ запроса. </summary>
-    /// <param name="query"> —обственно запрос. </param>
-    /// <returns> ¬озвращает значение 1 строки 1 столбца, если оно имеетс€. </returns>
-    public static string ExecuteQueryWithAnswer(string query)
+    public static void CreatePlayer()
     {
         OpenConnection();
-        command.CommandText = query;
-        var answer = command.ExecuteScalar();
-        CloseConnection();
 
-        if (answer != null) return answer.ToString();
-        else return null;
+        ExecuteQueryWithoutAnswer("INSERT INTO Player (experience, strength, dexterity) VALUES (0, 10, 10);");
+
+        CloseConnection();
+    }
+
+    public static Player GetPlayerById(int id)
+    {
+        OpenConnection();
+
+        Player Answer = null;
+        command.CommandText = string.Format("SELECT * FROM Players WHERE id_player = {0};", id);
+        using (SqliteDataReader reader = command.ExecuteReader())
+        {
+            if (reader.HasRows) // если есть данные
+            {
+                while (reader.Read())   // построчно считываем данные
+                {
+                    Answer = new Player(reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
+
+                    break;
+                }
+            }
+        }
+
+        CloseConnection();
+        return Answer;
     }
 
     /// <summary> Ётот метод возвращает таблицу, котора€ €вл€етс€ результатом выборки запроса query. </summary>
