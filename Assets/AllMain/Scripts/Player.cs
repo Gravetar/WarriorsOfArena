@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player
 {
+    private int _id;
+
     private int _level;
     private int _experience;
 
@@ -12,8 +14,9 @@ public class Player
     private int _health;
     private int _stamina;
 
-    public Player (int experience, int strength, int dexterity)
+    public Player (int id, int experience, int strength, int dexterity)
     {
+        _id = id;
         _experience = experience;
         _level = experience / 500;
 
@@ -24,6 +27,7 @@ public class Player
         _stamina = 100 + (10 * _dexterity);
     }
 
+    public int Id { get { return _id; } }
     public int Level { get { return _level; } }
     public int Health { get { return _health; } }
     public int Stamina { get { return _stamina; } }

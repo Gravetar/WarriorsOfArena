@@ -17,6 +17,26 @@ static class MyDataBase
     {
         DBPath = Application.dataPath + "/StreamingAssets/" + fileName;
     }
+    public static List<Player> GetPlayers()
+    {
+        OpenConnection();
+
+        List<Player> TempListWeapons = new List<Player>();
+        command.CommandText = string.Format("SELECT * FROM Players");
+        using (SqliteDataReader reader = command.ExecuteReader())
+        {
+            if (reader.HasRows) // если есть данные
+            {
+                while (reader.Read())   // построчно считываем данные
+                {
+                    TempListWeapons.Add(new Player(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3)));
+                }
+            }
+        }
+
+        CloseConnection();
+        return TempListWeapons;
+    }
 
     public static List<Weapon> GetWeapons()
     {
@@ -45,7 +65,7 @@ static class MyDataBase
     {
         OpenConnection();
 
-        ExecuteQueryWithoutAnswer("INSERT INTO Player (experience, strength, dexterity) VALUES (0, 10, 10);");
+        ExecuteQueryWithoutAnswer("INSERT INTO Players (experience, strength, dexterity) VALUES (0, 10, 10);");
 
         CloseConnection();
     }
@@ -62,7 +82,7 @@ static class MyDataBase
             {
                 while (reader.Read())   // построчно считываем данные
                 {
-                    Answer = new Player(reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
+                    Answer = new Player(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
 
                     break;
                 }

@@ -17,6 +17,6 @@ public class EnemyManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //TextHp.text = Health.ToString();
+        TextHp.text = Health.ToString();
     }
 }

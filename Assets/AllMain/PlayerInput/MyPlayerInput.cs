@@ -71,6 +71,15 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ExitToMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""f24eda40-2308-4432-8d6d-75519b92a1d6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -128,6 +137,17 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Block"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e1dde6df-01ee-4c58-84f2-dfc75f0bdcf0"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ExitToMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -141,6 +161,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         m_Player_GetSword = m_Player.FindAction("GetSword", throwIfNotFound: true);
         m_Player_GetAxe = m_Player.FindAction("GetAxe", throwIfNotFound: true);
         m_Player_GetMace = m_Player.FindAction("GetMace", throwIfNotFound: true);
+        m_Player_ExitToMenu = m_Player.FindAction("ExitToMenu", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -205,6 +226,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_GetSword;
     private readonly InputAction m_Player_GetAxe;
     private readonly InputAction m_Player_GetMace;
+    private readonly InputAction m_Player_ExitToMenu;
     public struct PlayerActions
     {
         private @MyPlayerInput m_Wrapper;
@@ -214,6 +236,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         public InputAction @GetSword => m_Wrapper.m_Player_GetSword;
         public InputAction @GetAxe => m_Wrapper.m_Player_GetAxe;
         public InputAction @GetMace => m_Wrapper.m_Player_GetMace;
+        public InputAction @ExitToMenu => m_Wrapper.m_Player_ExitToMenu;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -238,6 +261,9 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                 @GetMace.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGetMace;
                 @GetMace.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGetMace;
                 @GetMace.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGetMace;
+                @ExitToMenu.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnExitToMenu;
+                @ExitToMenu.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnExitToMenu;
+                @ExitToMenu.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnExitToMenu;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -257,6 +283,9 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                 @GetMace.started += instance.OnGetMace;
                 @GetMace.performed += instance.OnGetMace;
                 @GetMace.canceled += instance.OnGetMace;
+                @ExitToMenu.started += instance.OnExitToMenu;
+                @ExitToMenu.performed += instance.OnExitToMenu;
+                @ExitToMenu.canceled += instance.OnExitToMenu;
             }
         }
     }
@@ -268,5 +297,6 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         void OnGetSword(InputAction.CallbackContext context);
         void OnGetAxe(InputAction.CallbackContext context);
         void OnGetMace(InputAction.CallbackContext context);
+        void OnExitToMenu(InputAction.CallbackContext context);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -39,10 +40,13 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
+
         _animator = GetComponent<Animator>();
 
         Weapons = MyDataBase.GetWeapons();
-       _player = MyDataBase.GetPlayerById(3);
+       _player = MyDataBase.GetPlayerById(DATAMovement.ActivePlayer);
 
         ActivateWeapon(0);
     }
@@ -61,8 +65,13 @@ public class PlayerManager : MonoBehaviour
         _input.Player.GetSword.performed += context => ActivateWeapon(0);
         _input.Player.GetAxe.performed += context => ActivateWeapon(1);
         _input.Player.GetMace.performed += context => ActivateWeapon(2);
+        _input.Player.ExitToMenu.performed += context => ExitToMenu();
     }
 
+    private void ExitToMenu()
+    {
+        SceneManager.LoadScene("Menu");
+    }
     private void Attack()
     {
         if (AttackStatus == 0 && _canAttack)
