@@ -135,6 +135,7 @@ public class PlayerManager : MonoBehaviour
             //Debug.Log("Block");
 
             _animator.SetBool("Block", true);
+            if (_animator.GetFloat("Speed") > 2)
             _animator.SetFloat("Speed", 2);
         }
         else
