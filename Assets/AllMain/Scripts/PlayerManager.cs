@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using UnityEngine.SceneManagement;
 public class PlayerManager : MonoBehaviour
 {
     private Player _player;
+    private float _playerMaxSpeed = 6;
 
     private MyPlayerInput _input;
     private Animator _animator;
@@ -55,6 +57,8 @@ public class PlayerManager : MonoBehaviour
     {
         if (Mouse.current.rightButton.isPressed) Block("Block");
         else Block("UnBlock");
+
+        if (_playerMaxSpeed == 0) GetComponent<StarterAssetsInputs>().move = new Vector2(0, 0);
     }
 
     private void PerformedInputs()
@@ -66,6 +70,18 @@ public class PlayerManager : MonoBehaviour
         _input.Player.GetAxe.performed += context => ActivateWeapon(1);
         _input.Player.GetMace.performed += context => ActivateWeapon(2);
         _input.Player.ExitToMenu.performed += context => ExitToMenu();
+        _input.Player.Kick.performed += context => StartKick();
+    }
+
+    private void StartKick()
+    {
+        _animator.SetBool("Kick", true);
+    }
+
+    private void Kick()
+    {
+        _animator.SetBool("Kick", false);
+        Debug.Log("Kick");
     }
 
     private void ExitToMenu()
@@ -117,15 +133,22 @@ public class PlayerManager : MonoBehaviour
     }
     private void ActivateWeapon(int idWeapon)
     {
+        _animator.SetBool("Equip", true);
+        IdActiveWeapon = idWeapon;
+        _playerMaxSpeed = 0;
+    }
+    public void ActivateWeaponWithAnimation()
+    {
         foreach (GameObject weapon in WeaponsVisual)
         {
             weapon.SetActive(false);
         }
-        WeaponsVisual[idWeapon].SetActive(true);
+        WeaponsVisual[IdActiveWeapon].SetActive(true);
         float bonusAttackSpeed = (float)_player.Dexterity / 200;
         if (bonusAttackSpeed > 2.0f) bonusAttackSpeed = 2;
-        _animator.SetFloat("AttackSpeed", Weapons[idWeapon].AttackSpeed + bonusAttackSpeed);
-        IdActiveWeapon = idWeapon;
+        _animator.SetFloat("AttackSpeed", Weapons[IdActiveWeapon].AttackSpeed + bonusAttackSpeed);
+        _animator.SetBool("Equip", false);
+        _playerMaxSpeed = 1;
     }
 
     private void Block(string type)
@@ -136,7 +159,10 @@ public class PlayerManager : MonoBehaviour
 
             _animator.SetBool("Block", true);
             if (_animator.GetFloat("Speed") > 2)
-            _animator.SetFloat("Speed", 2);
+            {
+                _animator.SetFloat("Speed", 2);
+                GetComponent<StarterAssetsInputs>().sprint = false;
+            }
         }
         else
         {

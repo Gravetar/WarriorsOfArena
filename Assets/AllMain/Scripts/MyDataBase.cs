@@ -29,7 +29,7 @@ static class MyDataBase
             {
                 while (reader.Read())   // построчно считываем данные
                 {
-                    TempListWeapons.Add(new Player(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3)));
+                    TempListWeapons.Add(new Player(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4)));
                 }
             }
         }
@@ -41,8 +41,6 @@ static class MyDataBase
     public static List<Weapon> GetWeapons()
     {
         List<Weapon> TempListWeapons = new List<Weapon>();
-
-        OpenConnection();
 
         DataTable TempTable = GetTable("SELECT * FROM Weapons");
 
@@ -57,17 +55,32 @@ static class MyDataBase
                 ));
         }
 
-        CloseConnection();
-
         return TempListWeapons;
     }
-    public static void CreatePlayer()
+    public static void CreatePlayer(string inputname)
+    {
+        ExecuteQueryWithoutAnswer(string.Format("INSERT INTO Players (name, experience, strength, dexterity) VALUES (\"{0}\", 0, 10, 10);", inputname));
+    }
+    public static int GetLastPlayerId()
     {
         OpenConnection();
 
-        ExecuteQueryWithoutAnswer("INSERT INTO Players (experience, strength, dexterity) VALUES (0, 10, 10);");
+        int Answer=0;
+        command.CommandText = "SELECT * FROM Players ORDER BY id_player DESC LIMIT 1";
+        using (SqliteDataReader reader = command.ExecuteReader())
+        {
+            if (reader.HasRows) // если есть данные
+            {
+                while (reader.Read())   // построчно считываем данные
+                {
+                    Answer = reader.GetInt32(0);
+                    break;
+                }
+            }
+        }
 
         CloseConnection();
+        return Answer;
     }
 
     public static Player GetPlayerById(int id)
@@ -82,7 +95,7 @@ static class MyDataBase
             {
                 while (reader.Read())   // построчно считываем данные
                 {
-                    Answer = new Player(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
+                    Answer = new Player(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4));
 
                     break;
                 }

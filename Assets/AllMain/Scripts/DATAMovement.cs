@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class DATAMovement
 {
-    public static int ActivePlayer = 0;
+    public static int ActivePlayer = 1;
 }
