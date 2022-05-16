@@ -6,6 +6,9 @@ TagManager:
   tags:
   - CinemachineTarget
   - Enemy
+  - StartZone
+  - GameManager
+  - IgnoredCamera
   layers:
   - Default
   - TransparentFX

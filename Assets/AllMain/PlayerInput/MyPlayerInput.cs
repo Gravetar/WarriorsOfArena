@@ -89,6 +89,15 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenStats"",
+                    ""type"": ""Button"",
+                    ""id"": ""f80e2d3e-ea9d-43e6-ada7-1b86c4cbc0a4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -168,6 +177,17 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Kick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""337776e3-8363-4496-b81b-aea7db2b1b36"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OpenStats"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -183,6 +203,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         m_Player_GetMace = m_Player.FindAction("GetMace", throwIfNotFound: true);
         m_Player_ExitToMenu = m_Player.FindAction("ExitToMenu", throwIfNotFound: true);
         m_Player_Kick = m_Player.FindAction("Kick", throwIfNotFound: true);
+        m_Player_OpenStats = m_Player.FindAction("OpenStats", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -249,6 +270,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_GetMace;
     private readonly InputAction m_Player_ExitToMenu;
     private readonly InputAction m_Player_Kick;
+    private readonly InputAction m_Player_OpenStats;
     public struct PlayerActions
     {
         private @MyPlayerInput m_Wrapper;
@@ -260,6 +282,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         public InputAction @GetMace => m_Wrapper.m_Player_GetMace;
         public InputAction @ExitToMenu => m_Wrapper.m_Player_ExitToMenu;
         public InputAction @Kick => m_Wrapper.m_Player_Kick;
+        public InputAction @OpenStats => m_Wrapper.m_Player_OpenStats;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -290,6 +313,9 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                 @Kick.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKick;
                 @Kick.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKick;
                 @Kick.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKick;
+                @OpenStats.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnOpenStats;
+                @OpenStats.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnOpenStats;
+                @OpenStats.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnOpenStats;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -315,6 +341,9 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                 @Kick.started += instance.OnKick;
                 @Kick.performed += instance.OnKick;
                 @Kick.canceled += instance.OnKick;
+                @OpenStats.started += instance.OnOpenStats;
+                @OpenStats.performed += instance.OnOpenStats;
+                @OpenStats.canceled += instance.OnOpenStats;
             }
         }
     }
@@ -328,5 +357,6 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         void OnGetMace(InputAction.CallbackContext context);
         void OnExitToMenu(InputAction.CallbackContext context);
         void OnKick(InputAction.CallbackContext context);
+        void OnOpenStats(InputAction.CallbackContext context);
     }
 }

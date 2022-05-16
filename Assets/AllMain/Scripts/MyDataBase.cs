@@ -29,7 +29,7 @@ static class MyDataBase
             {
                 while (reader.Read())   // построчно считываем данные
                 {
-                    TempListWeapons.Add(new Player(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4)));
+                    TempListWeapons.Add(new Player(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5)));
                 }
             }
         }
@@ -50,6 +50,7 @@ static class MyDataBase
             TempListWeapons.Add(new Weapon(
                 int.Parse(TempTable.Rows[i][2].ToString()),
                 int.Parse(TempTable.Rows[i][3].ToString()),
+                int.Parse(TempTable.Rows[i][5].ToString()),
                 float.Parse(TempTable.Rows[i][4].ToString()),
                 TempTable.Rows[i][1].ToString()
                 ));
@@ -95,7 +96,7 @@ static class MyDataBase
             {
                 while (reader.Read())   // построчно считываем данные
                 {
-                    Answer = new Player(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4));
+                    Answer = new Player(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5));
 
                     break;
                 }
