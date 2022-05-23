@@ -1,18 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class RunAwayCarefulNode : MonoBehaviour
+public class RunAwayCarefulNode : Node
 {
-    // Start is called before the first frame update
-    void Start()
+    private EnemyAi _ai;
+    private ActionPlayer _actionPlayer;
+    private int _favoriteIdWeaponPlayer;
+
+    public RunAwayCarefulNode(EnemyAi ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
     {
-        
+        _ai = ai;
+        _actionPlayer = actionPlayer;
+        _favoriteIdWeaponPlayer = favoriteIdWeaponPlayer;
     }
 
-    // Update is called once per frame
-    void Update()
+    public override NodeState Evaluate()
     {
-        
+        if (_actionPlayer == ActionPlayer.Attack && _favoriteIdWeaponPlayer == 2)
+        {
+            _ai.SetWeapon(1);
+            _ai.SetStrength(1);
+            _ai.SetDexterity(3);
+            _ai.EnemyTactic = EnemyAi.TacticEnemy.Passive;
+            return NodeState.SOCCESS;
+        }
+        else
+        {
+            return NodeState.FAILURE;
+        }
     }
 }

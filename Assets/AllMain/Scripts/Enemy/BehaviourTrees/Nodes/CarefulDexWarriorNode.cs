@@ -1,10 +1,10 @@
-public class CarefulDexWarriorNode : Node
+public class CarefulDexAssasinNode : Node
 {
     private EnemyAi _ai;
-    private EnemyAi.ActionPlayer _actionPlayer;
+    private ActionPlayer _actionPlayer;
     private int _favoriteIdWeaponPlayer;
 
-    public CarefulDexWarriorNode(EnemyAi ai, EnemyAi.ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
+    public CarefulDexAssasinNode(EnemyAi ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
     {
         _ai = ai;
         _actionPlayer = actionPlayer;
@@ -13,11 +13,11 @@ public class CarefulDexWarriorNode : Node
 
     public override NodeState Evaluate()
     {
-        if (_actionPlayer == EnemyAi.ActionPlayer.Attack)
+        if (_actionPlayer == ActionPlayer.Block && _favoriteIdWeaponPlayer == 2)
         {
             _ai.SetWeapon(1);
-            _ai.SetStrength(2);
-            _ai.SetDexterity(2);
+            _ai.SetStrength(1);
+            _ai.SetDexterity(3);
             _ai.EnemyTactic = EnemyAi.TacticEnemy.Passive;
             return NodeState.SOCCESS;
         }

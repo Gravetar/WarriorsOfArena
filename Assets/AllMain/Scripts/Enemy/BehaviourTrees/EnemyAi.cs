@@ -6,9 +6,7 @@ using UnityEngine;
 public class EnemyAi : MonoBehaviour
 {
     private Node _topNode;
-    private float lowhp;
 
-    private Enemy enemy;
     public int EnemyStrength;
     public int EnemyDexterity;
     public TacticEnemy EnemyTactic;
@@ -30,15 +28,22 @@ public class EnemyAi : MonoBehaviour
 
     private void ConstructBehaviourTree()
     {
-        WarriorNode warriorNode = new WarriorNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); // Attack 1
-        DamageTankNode dmgTankNode = new DamageTankNode(this, FavoriteActionPlayer, FightSeconds, FavoriteIdWeaponPlayer); //Block >60 1
-        DefTankNode defTankNode = new DefTankNode(this, FavoriteActionPlayer, FightSeconds, FavoriteIdWeaponPlayer); //Block <60 1
-        RusherNode rusherNode = new RusherNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); //Block 3
+        WarriorNode warriorNode = new WarriorNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); // Attack 1 - 3 2 2 P
+        DamageTankNode dmgTankNode = new DamageTankNode(this, FavoriteActionPlayer, FightSeconds, FavoriteIdWeaponPlayer); //Block >60 1 - 3 3 1 A
+        DefTankNode defTankNode = new DefTankNode(this, FavoriteActionPlayer, FightSeconds, FavoriteIdWeaponPlayer); //Block <60 1 - 3 3 1 P
+        RusherNode rusherNode = new RusherNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); //Block 3 - 1 1 3 A
+        CarefulDexAssasinNode carefulDexAssasinNode = new CarefulDexAssasinNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); //Block 2 - 1 1 3 P
+        DefCarefulNode defCarefulNode = new DefCarefulNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); //Attack 3 - 2 2 2 P
+        RunAwayCarefulNode runAwayCarefulNode = new RunAwayCarefulNode(this, FavoriteActionPlayer, FavoriteIdWeaponPlayer); //Attack 2 - 1 1 3 P
 
         Selector tankSelector = new Selector(new List<Node> { dmgTankNode, defTankNode });
         Selector strengthSelector = new Selector(new List<Node> {warriorNode, tankSelector });
 
-        _topNode = new Selector(new List<Node> { strengthSelector });
+        Selector carefulSelector = new Selector(new List<Node> { defCarefulNode, runAwayCarefulNode });
+        Selector assasinSelector = new Selector(new List<Node> { rusherNode, carefulDexAssasinNode });
+        Selector dextiritySelector = new Selector(new List<Node> { assasinSelector, carefulSelector });
+
+        _topNode = new Selector(new List<Node> { strengthSelector, dextiritySelector });
         _topNode.Evaluate();
     }
 
@@ -66,15 +71,9 @@ public class EnemyAi : MonoBehaviour
         EnemyTactic = tactic;
     }
 
-    public void CreateEnemy()
+    public Enemy CreateEnemy()
     {
-        enemy = new Enemy(NumberFight, EnemyStrength, EnemyDexterity);
-    }
-
-    public enum ActionPlayer
-    {
-        Attack,
-        Block
+        return new Enemy(EnemyTactic, NumberFight, EnemyStrength, EnemyDexterity, _activeWeaponId);
     }
 
     public enum TacticEnemy

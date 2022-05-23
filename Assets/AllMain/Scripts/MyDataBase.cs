@@ -62,6 +62,17 @@ static class MyDataBase
     {
         ExecuteQueryWithoutAnswer(string.Format("INSERT INTO Players (name, experience, strength, dexterity) VALUES (\"{0}\", 0, 10, 10);", inputname));
     }
+
+    public static void CreateFight(int id_player, bool player_winner, int player_favorite_weapon, ActionPlayer player_favorite_action, int fight_number, float fight_timer)
+    {
+        string _fight_timer = fight_timer.ToString().Replace(',', '.');
+        string _player_favorite_action = "\"" + player_favorite_action.ToString() + "\"";
+        string query = string.Format("INSERT INTO Fights " +
+            "(id_player, player_winner, player_favorite_weapon, player_favorite_action, fight_number, fight_timer) " +
+            "VALUES ({0}, {1}, {2}, {3}, {4}, {5});",
+            id_player.ToString(), player_winner.ToString(), player_favorite_weapon.ToString(), _player_favorite_action, fight_number, _fight_timer);
+        ExecuteQueryWithoutAnswer(query);
+    }
     public static int GetLastPlayerId()
     {
         OpenConnection();

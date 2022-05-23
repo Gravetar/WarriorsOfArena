@@ -32,6 +32,7 @@ public class Ai : MonoBehaviour
     private NavMeshAgent _agent; // ”казываем переменную агента
     private EnemyAnimator _enemyAnimator;
     private float _secondFinished = 0;
+    private EnemyAi _enemyaiBeh;
     public bool PinaltyDamage = false;
     [SerializeField] private Image _enemyHealthImage;
     public bool ShotPlayer = false;
@@ -48,9 +49,12 @@ public class Ai : MonoBehaviour
         _target = transform;
 
         Weapons = MyDataBase.GetWeapons();
-        ActivateWeapon(2);
 
-        Enemy = new Enemy(0, 10, 20);
+        _enemyaiBeh = GetComponent<EnemyAi>();
+
+        Enemy = _enemyaiBeh.CreateEnemy();
+
+        ActivateWeapon(Enemy.Weapon);
 
         InitStates();
     }

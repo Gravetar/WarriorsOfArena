@@ -10,8 +10,8 @@ public class WeaponAction : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (isWeaponFromPlayer) _player = GameObject.Find("Player").GetComponent<PlayerManager>();
-        else _enemy = GameObject.Find("Enemy").GetComponent<Ai>();
+        _player = GameObject.Find("Player").GetComponent<PlayerManager>();
+        _enemy = GameObject.Find("Enemy").GetComponent<Ai>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -19,9 +19,9 @@ public class WeaponAction : MonoBehaviour
         if (other.gameObject.tag == "Enemy" && isWeaponFromPlayer)
         {
             if (!(other.GetComponent<Ai>().StateMachine.CurrentState is StateBlock))
-            _player.NowEnemies.Add(other.gameObject);
+                _player.NowEnemies.Add(other.gameObject);
         }
-        else if (other.gameObject.tag == "Player" && !isWeaponFromPlayer)
+        else if (other.gameObject.tag == "Player" && !isWeaponFromPlayer && _player.BlockStatus == false)
         {
             _enemy.ShotPlayer = true;
         }

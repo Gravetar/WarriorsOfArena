@@ -12,6 +12,7 @@ public class PlayerManager : MonoBehaviour
     public Player Player => _player;
     private Player _player;
     public GameManager GameManager;
+    public bool BlockStatus = false;
     private bool _pinaltyDamage = false;
     [SerializeField] private GameObject _dialogPanel;
     [SerializeField] private Transform _instructor;
@@ -249,6 +250,7 @@ public class PlayerManager : MonoBehaviour
             //Debug.Log("Block");
 
             _animator.SetBool("Block", true);
+            BlockStatus = true;
             if (_animator.GetFloat("Speed") > 2)
             {
                 _animator.SetFloat("Speed", 2);
@@ -258,7 +260,7 @@ public class PlayerManager : MonoBehaviour
         else
         {
             //Debug.Log("UnBlock");
-
+            BlockStatus = false;
             _animator.SetBool("Block", false);
         }
     }
@@ -269,9 +271,11 @@ public class PlayerManager : MonoBehaviour
         _animator.SetBool("Damaged", true);
         if (Player.Health <= 0)
         {
+            GameManager.EndBattle(false);
             _animator.SetTrigger("Death");
             _input.Player.Disable();
             _inputMovment.IsCanMovement = false;
+            GetComponent<StarterAssetsInputs>().move = new Vector2(0, 0);
         }
     }
 
@@ -290,7 +294,7 @@ public class PlayerManager : MonoBehaviour
         }
         else if (other.tag == "EndZone" && GameManager.isStartedBattle)
         {
-            GameManager.EndBattle();
+            GameManager.EndBattle(true);
             GameManager.CloseDoor();
         }
     }

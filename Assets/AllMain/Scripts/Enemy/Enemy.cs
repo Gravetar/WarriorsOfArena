@@ -1,6 +1,10 @@
 
+using static EnemyAi;
+
 public class Enemy
 {
+    private TacticEnemy _tactic;
+    private int _weapon;
     private int _level;
     private int _strength;
     private int _dexterity;
@@ -9,7 +13,7 @@ public class Enemy
     private int _stamina;
     private int _maxStamina;
 
-    public Enemy(int level, int strength, int dexterity)
+    public Enemy(TacticEnemy tactic, int level, int strength, int dexterity, int weapon)
     {
         _level = level;
 
@@ -20,6 +24,9 @@ public class Enemy
         _maxHealth = _health;
         _stamina = 100 + (10 * _dexterity);
         _maxStamina = _stamina;
+
+        _tactic = tactic;
+        _weapon = weapon;
     }
 
     public int Level { get { return _level; } }
@@ -29,4 +36,5 @@ public class Enemy
     public int MaxStamina { get { return _maxStamina; } }
     public int Strength { get { return _strength; } set { _strength = value; } }
     public int Dexterity { get { return _dexterity; } set { _dexterity = value; } }
+    public int Weapon { get { return _weapon; } set { _weapon = value; } }
 }

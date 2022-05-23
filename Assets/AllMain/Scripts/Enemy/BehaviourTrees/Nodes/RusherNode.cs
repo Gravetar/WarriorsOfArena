@@ -1,10 +1,10 @@
 public class RusherNode : Node
 {
     private EnemyAi _ai;
-    private EnemyAi.ActionPlayer _actionPlayer;
+    private ActionPlayer _actionPlayer;
     private int _favoriteIdWeaponPlayer;
 
-    public RusherNode(EnemyAi ai, EnemyAi.ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
+    public RusherNode(EnemyAi ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
     {
         _ai = ai;
         _actionPlayer = actionPlayer;
@@ -13,7 +13,7 @@ public class RusherNode : Node
 
     public override NodeState Evaluate()
     {
-        if (_actionPlayer == EnemyAi.ActionPlayer.Block && _favoriteIdWeaponPlayer == 3)
+        if (_actionPlayer == ActionPlayer.Block && _favoriteIdWeaponPlayer == 3)
         {
             _ai.SetWeapon(1);
             _ai.SetStrength(1);

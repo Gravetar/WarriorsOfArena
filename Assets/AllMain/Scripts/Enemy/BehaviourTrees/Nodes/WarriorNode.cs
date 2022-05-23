@@ -1,10 +1,10 @@
 public class WarriorNode : Node
 {
     private EnemyAi _ai;
-    private EnemyAi.ActionPlayer _actionPlayer;
+    private ActionPlayer _actionPlayer;
     private int _favoriteIdWeaponPlayer;
 
-    public WarriorNode(EnemyAi ai, EnemyAi.ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
+    public WarriorNode(EnemyAi ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
     {
         _ai = ai;
         _actionPlayer = actionPlayer;
@@ -13,7 +13,7 @@ public class WarriorNode : Node
 
     public override NodeState Evaluate()
     {
-        if (_actionPlayer == EnemyAi.ActionPlayer.Attack && _favoriteIdWeaponPlayer == 1)
+        if (_actionPlayer == ActionPlayer.Attack && _favoriteIdWeaponPlayer == 1)
         {
             _ai.SetWeapon(3);
             _ai.SetStrength(2);

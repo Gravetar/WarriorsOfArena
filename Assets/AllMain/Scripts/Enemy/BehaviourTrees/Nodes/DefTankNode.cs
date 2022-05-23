@@ -1,11 +1,11 @@
 public class DefTankNode : Node
 {
     private EnemyAi _ai;
-    private EnemyAi.ActionPlayer _actionPlayer;
+    private ActionPlayer _actionPlayer;
     private int _fightSeconds;
     private int _favoriteIdWeaponPlayer;
 
-    public DefTankNode(EnemyAi ai, EnemyAi.ActionPlayer actionPlayer, int fightSeconds, int favoriteIdWeaponPlayer)
+    public DefTankNode(EnemyAi ai, ActionPlayer actionPlayer, int fightSeconds, int favoriteIdWeaponPlayer)
     {
         _ai = ai;
         _actionPlayer = actionPlayer;
@@ -15,7 +15,7 @@ public class DefTankNode : Node
 
     public override NodeState Evaluate()
     {
-        if (_actionPlayer == EnemyAi.ActionPlayer.Block && _fightSeconds < 60 && _favoriteIdWeaponPlayer == 1)
+        if (_actionPlayer == ActionPlayer.Block && _fightSeconds < 60 && _favoriteIdWeaponPlayer == 1)
         {
             _ai.SetWeapon(3);
             _ai.SetStrength(3);
