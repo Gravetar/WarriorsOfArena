@@ -1,22 +1,22 @@
 public class StateMachine
 {
-    private State _currentState;
+    public State CurrentState;
 
     public void Initialize (State startingState)
     {
-        _currentState = startingState;
+        CurrentState = startingState;
         startingState.Enter();
     }
 
     public void LogicUpdate()
     {
-        _currentState?.LogicUpdate();
+        CurrentState?.LogicUpdate();
     }
     public void ChangeState(State newState)
     {
-        _currentState.Exit();
+        CurrentState.Exit();
 
-        _currentState = newState;
+        CurrentState = newState;
         newState.Enter();
     }
 }

@@ -89,7 +89,7 @@ public class StateAttack : State
             else Enemy.Player.GetComponent<PlayerManager>().GetDamage(Enemy.Weapons[Enemy.IdActiveWeapon].Damage);
             if (Enemy.Player.GetComponent<PlayerManager>().Player.Health <= 0)
             {
-                Debug.Log("PLAYER DEAD");
+                Enemy.StateMachine.ChangeState(Enemy.Idle);
             }
         }
         _canAttack = true;

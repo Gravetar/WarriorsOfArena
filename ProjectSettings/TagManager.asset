@@ -9,6 +9,9 @@ TagManager:
   - StartZone
   - GameManager
   - IgnoredCamera
+  - Instructor
+  - EndZone
+  - EnemyShield
   layers:
   - Default
   - TransparentFX

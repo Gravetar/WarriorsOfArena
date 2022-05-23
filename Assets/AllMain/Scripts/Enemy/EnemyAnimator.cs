@@ -47,6 +47,11 @@ public class EnemyAnimator
         _animator.SetFloat(EnemyAnimationsKeystore.Speed, 3.5f);
     }
 
+    public void Death()
+    {
+        _animator.SetTrigger("Death");
+    }
+
     public void GetDamage()
     {
         _animator.SetBool("Damaged", true);

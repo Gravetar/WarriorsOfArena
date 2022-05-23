@@ -12,6 +12,7 @@ public class Ai : MonoBehaviour
     public StateMovement Movement { get; private set; }
     public StateAttack Attack { get; private set; }
     public StateBlock Block { get; private set; }
+    public StateDeath Death { get; private set; }
 
     public Transform Player => _playerTransform;
     public Transform Self => _selfTransform;
@@ -57,6 +58,10 @@ public class Ai : MonoBehaviour
     void Update()
     {
         StateMachine.LogicUpdate();
+        if (Enemy.Health <= 0)
+        {
+            StateMachine.ChangeState(Death);
+        }
     }
 
     private void FixedUpdate()
@@ -97,6 +102,7 @@ public class Ai : MonoBehaviour
         Movement = new StateMovement(this, StateMachine);
         Attack = new StateAttack(this, StateMachine);
         Block = new StateBlock(this, StateMachine);
+        Death = new StateDeath(this, StateMachine);
 
         StateMachine.Initialize(Idle);
     }

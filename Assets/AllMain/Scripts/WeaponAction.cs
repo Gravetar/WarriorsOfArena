@@ -18,6 +18,7 @@ public class WeaponAction : MonoBehaviour
     {
         if (other.gameObject.tag == "Enemy" && isWeaponFromPlayer)
         {
+            if (!(other.GetComponent<Ai>().StateMachine.CurrentState is StateBlock))
             _player.NowEnemies.Add(other.gameObject);
         }
         else if (other.gameObject.tag == "Player" && !isWeaponFromPlayer)

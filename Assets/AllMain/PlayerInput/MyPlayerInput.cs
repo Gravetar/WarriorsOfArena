@@ -98,6 +98,15 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StartDialog"",
+                    ""type"": ""Button"",
+                    ""id"": ""15780626-5a83-4c81-87e6-d41b38e37e88"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -188,6 +197,17 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""OpenStats"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e7858f6f-72af-43dd-8b53-cc0fac9671ed"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StartDialog"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -204,6 +224,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         m_Player_ExitToMenu = m_Player.FindAction("ExitToMenu", throwIfNotFound: true);
         m_Player_Kick = m_Player.FindAction("Kick", throwIfNotFound: true);
         m_Player_OpenStats = m_Player.FindAction("OpenStats", throwIfNotFound: true);
+        m_Player_StartDialog = m_Player.FindAction("StartDialog", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -271,6 +292,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ExitToMenu;
     private readonly InputAction m_Player_Kick;
     private readonly InputAction m_Player_OpenStats;
+    private readonly InputAction m_Player_StartDialog;
     public struct PlayerActions
     {
         private @MyPlayerInput m_Wrapper;
@@ -283,6 +305,7 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         public InputAction @ExitToMenu => m_Wrapper.m_Player_ExitToMenu;
         public InputAction @Kick => m_Wrapper.m_Player_Kick;
         public InputAction @OpenStats => m_Wrapper.m_Player_OpenStats;
+        public InputAction @StartDialog => m_Wrapper.m_Player_StartDialog;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -316,6 +339,9 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                 @OpenStats.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnOpenStats;
                 @OpenStats.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnOpenStats;
                 @OpenStats.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnOpenStats;
+                @StartDialog.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnStartDialog;
+                @StartDialog.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnStartDialog;
+                @StartDialog.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnStartDialog;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -344,6 +370,9 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
                 @OpenStats.started += instance.OnOpenStats;
                 @OpenStats.performed += instance.OnOpenStats;
                 @OpenStats.canceled += instance.OnOpenStats;
+                @StartDialog.started += instance.OnStartDialog;
+                @StartDialog.performed += instance.OnStartDialog;
+                @StartDialog.canceled += instance.OnStartDialog;
             }
         }
     }
@@ -358,5 +387,6 @@ public partial class @MyPlayerInput : IInputActionCollection2, IDisposable
         void OnExitToMenu(InputAction.CallbackContext context);
         void OnKick(InputAction.CallbackContext context);
         void OnOpenStats(InputAction.CallbackContext context);
+        void OnStartDialog(InputAction.CallbackContext context);
     }
 }

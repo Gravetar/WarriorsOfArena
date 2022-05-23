@@ -7,6 +7,7 @@ namespace StarterAssets
 {
 	public class StarterAssetsInputs : MonoBehaviour
 	{
+		[HideInInspector] public bool IsCanMovement = true;
 		[Header("Character Input Values")]
 		public Vector2 move;
 		public Vector2 look;
@@ -25,7 +26,8 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 		public void OnMove(InputValue value)
 		{
-			MoveInput(value.Get<Vector2>());
+			if(IsCanMovement)
+				MoveInput(value.Get<Vector2>());
 		}
 
 		public void OnLook(InputValue value)
@@ -43,7 +45,8 @@ namespace StarterAssets
 
 		public void OnSprint(InputValue value)
 		{
-			SprintInput(value.isPressed);
+			if (IsCanMovement)
+				SprintInput(value.isPressed);
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...

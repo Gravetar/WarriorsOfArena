@@ -13,12 +13,17 @@ public class PlayerManager : MonoBehaviour
     private Player _player;
     public GameManager GameManager;
     private bool _pinaltyDamage = false;
+    [SerializeField] private GameObject _dialogPanel;
+    [SerializeField] private Transform _instructor;
     [SerializeField] private Image _playerHealthImage;
     [SerializeField] private Image _playerStaminaImage;
     [SerializeField] private GameObject _characteristicWindow;
+    [SerializeField] private GameObject _txtDialog;
+    [SerializeField] private GameObject _door;
     private float _playerMaxSpeed = 6;
 
     private MyPlayerInput _input;
+    private StarterAssetsInputs _inputMovment;
     private Animator _animator;
     public int AttackStatus=0;
     private bool _canAttack = true;
@@ -63,6 +68,8 @@ public class PlayerManager : MonoBehaviour
         ActivateWeapon(0);
 
         Debug.Log(_player.FreeXpPoints);
+
+        _inputMovment = GetComponent<StarterAssetsInputs>(); 
     }
 
     private void FixedUpdate()
@@ -106,6 +113,15 @@ public class PlayerManager : MonoBehaviour
         float coef = (float)_player.MaxStamina / _player.Stamina;
         float precent = 100 / coef;
         _playerStaminaImage.fillAmount = precent / 100;
+
+        if (Vector3.Distance(transform.position, _instructor.position) <= 3)
+        {
+            _txtDialog.SetActive(true);
+        }
+        else
+        {
+            ExitFromDialog();
+        }
     }
 
     private void PerformedInputs()
@@ -119,6 +135,23 @@ public class PlayerManager : MonoBehaviour
         _input.Player.ExitToMenu.performed += context => ExitToMenu();
         _input.Player.Kick.performed += context => StartKick();
         _input.Player.OpenStats.performed += context => OpenCharacteristic();
+        _input.Player.StartDialog.performed += context => StartDialog();
+    }
+    private void StartDialog()
+    {
+        if (Vector3.Distance(transform.position, _instructor.position) <= 3)
+        {
+            _dialogPanel.SetActive(true);
+            Cursor.visible = true;
+        }
+    }
+
+    public void ExitFromDialog()
+    {
+        _txtDialog.SetActive(false);
+        _txtDialog.SetActive(false);
+        _dialogPanel.SetActive(false);
+        Cursor.visible = false;
     }
 
     private void OpenCharacteristic()
@@ -234,6 +267,12 @@ public class PlayerManager : MonoBehaviour
     {
         _player.Health -= damage;
         _animator.SetBool("Damaged", true);
+        if (Player.Health <= 0)
+        {
+            _animator.SetTrigger("Death");
+            _input.Player.Disable();
+            _inputMovment.IsCanMovement = false;
+        }
     }
 
     private void EndDamaged()
@@ -247,7 +286,12 @@ public class PlayerManager : MonoBehaviour
     {
         if (other.tag == "StartZone")
         {
-            GameManager.isStartedBattle = true;
+            GameManager.StartBattle();
+        }
+        else if (other.tag == "EndZone" && GameManager.isStartedBattle)
+        {
+            GameManager.EndBattle();
+            GameManager.CloseDoor();
         }
     }
 
@@ -265,7 +309,12 @@ public class PlayerManager : MonoBehaviour
             else enemy.GetComponent<Ai>().Enemy.Health -= 5;
             enemy.GetComponent<Ai>().Animator.GetDamage();
             Debug.Log(string.Format("{0} + {1}", Weapons[IdActiveWeapon].Damage, _player.Strength));
-            if (enemy.GetComponent<Ai>().Enemy.Health <= 0) Destroy(enemy);
+            if (enemy.GetComponent<Ai>().Enemy.Health <= 0)
+            {
+                GameManager.OpenDoor();
+                GameManager.HideHealthEnemy(false);
+                Destroy(enemy, 4.20f);
+            }
         }
 
         NowEnemies.Clear();
