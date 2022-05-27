@@ -12,6 +12,7 @@ TagManager:
   - Instructor
   - EndZone
   - EnemyShield
+  - EnemyHealth
   layers:
   - Default
   - TransparentFX

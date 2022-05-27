@@ -1,5 +1,13 @@
+/*
+Менеджер игрока, данный класс-скрипт отвечает за все, что связано с персонажем игрока
+
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
+
 using StarterAssets;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,126 +17,143 @@ using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
-    public Player Player => _player;
-    private Player _player;
-    public GameManager GameManager;
-    public bool BlockStatus = false;
-    private bool _pinaltyDamage = false;
-    [SerializeField] private GameObject _dialogPanel;
-    [SerializeField] private Transform _instructor;
-    [SerializeField] private Image _playerHealthImage;
-    [SerializeField] private Image _playerStaminaImage;
-    [SerializeField] private GameObject _characteristicWindow;
-    [SerializeField] private GameObject _txtDialog;
-    [SerializeField] private GameObject _door;
-    private float _playerMaxSpeed = 6;
+    public Player Player => _player; // Установка только для чтения(геттер)
 
-    private MyPlayerInput _input;
-    private StarterAssetsInputs _inputMovment;
-    private Animator _animator;
-    public int AttackStatus=0;
-    private bool _canAttack = true;
-
-    public List<GameObject> NowEnemies = new List<GameObject>();
-
+    public float BlockTime; // Время блока игрока в бою
+    public int AttackCount; // Количество атак, проведенных игроком
+    public bool BlockStatus = false; // Флаг, описывающий в блоке ли сейчас игрок
+    public bool EnemyIsDead = false; // Флаг, указывающий, что противник побежден.
+    public List<GameObject> NowEnemies = new List<GameObject>(); // Враги, задетые атакой
+    public int IdActiveWeapon = 0; // Id текущего оружия игрока
     
-    public List<Weapon> Weapons = new List<Weapon>();
+    [SerializeField] private GameObject[] WeaponsVisual; // Объекты оружий
+    [SerializeField] private Transform _instructor; // Инструктор
+    [SerializeField] private Image _playerHealthImage; // Картинка здоровья игрока
+    [SerializeField] private Image _playerStaminaImage; // Картинка выносливости игрока
+    [SerializeField] private GameObject _characteristicWindow; // Панель - статистика игрока
+    [SerializeField] private GameObject _door; // Объект - дверь
 
-    public int IdActiveWeapon=0;
+    private List<Weapon> _weapons = new List<Weapon>(); // Список оружий
+    private GameManager _gameManager; // Менеджер игры
+    private int _attackStatus = 0; // Порядковый номер атаки
+    private Player _player; // Персонаж игрока
+    private bool _pinaltyDamage = false; // Штраф к урону
+    private float _playerMaxSpeed = 6; // Максимальная доступная скорость персонажа
 
-    public GameObject[] WeaponsVisual;
+    private MyPlayerInput _input; // Система ввода
+    private StarterAssetsInputs _inputMovement; // Система ввода (шаблонная), для ограничения движения персонажа
 
-    private float _secondFinished = 0;
+    private Animator _animator; // Аниматор персонажа
+    private bool _canAttack = true; // Флаг, может ли персонаж провести следующую атаку
 
+    private float _secondFinished = 0; // Счетчик времени для восстановления выносливости персонажа
+
+    /// <summary>
+    /// Функция Awake вызывается когда экземпляр скрипта будет загружен
+    /// </summary>
     private void Awake()
     {
-        PerformedInputs();
+        PerformedInputs(); // Настройка системы управления
     }
 
+    /// <summary>
+    /// Функция OnEnable вызывается, когда объект становится включенным и активным.
+    /// </summary>
     private void OnEnable()
     {
         _input.Enable();
     }
 
+    /// <summary>
+    /// Эта функция вызывается, когда поведение становится отключенным.
+    /// Она также вызывается при уничтожении объекта
+    /// </summary>
     private void OnDisable()
     {
-        _input.Disable();
+        _input.Disable(); // Отключить систему управления
     }
 
+    /// <summary>
+    /// Start вызывается, когда скрипт включен, вызывается непосредственно перед первым вызовом любого из методов обновления.
+    /// </summary>
     private void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.Confined; // Закрепить курсор "в окне игры"
 
-        _animator = GetComponent<Animator>();
+        _gameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
+        _player = MyDataBase.GetPlayerById(DATAMovement.ActivePlayer); // Загрузить персонажа игрока
+        _inputMovement = GetComponent<StarterAssetsInputs>(); // Установить систему ввода (Шаблонную)
 
-        Weapons = MyDataBase.GetWeapons();
-       _player = MyDataBase.GetPlayerById(DATAMovement.ActivePlayer);
-        GameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
-
-        ActivateWeapon(0);
-
-        Debug.Log(_player.FreeXpPoints);
-
-        _inputMovment = GetComponent<StarterAssetsInputs>(); 
+        _animator = GetComponent<Animator>(); // Установка аниматора персонажа
+        _weapons = MyDataBase.GetWeapons(); // Загрузить данные оружия из базы данных
+        
+        ActivateWeapon(0); // Активировать меч, в качестве оружия персонажа
     }
 
+    /// <summary>
+    /// Обновление, не зависящее от частоты кадров
+    /// </summary>
     private void FixedUpdate()
     {
-        _secondFinished += Time.deltaTime;
-
+        // Заполнить шкалу здоровья игрока
         float coef = (float)_player.MaxHealth / _player.Health;
         float precent = 100 / coef;
         _playerHealthImage.fillAmount = precent / 100;
+        // Заполнить шкалу выносливости игрока
+        coef = (float)_player.MaxStamina / _player.Stamina;
+        precent = 100 / coef;
+        _playerStaminaImage.fillAmount = precent / 100;
 
-        if (_secondFinished >= 0.1f)
-        {
+        _secondFinished += Time.deltaTime; // Подсчет времени
 
-            if (_player.Stamina < _player.MaxStamina)
-            {
-                _player.Stamina += 1;
-                _secondFinished = 0;
-            }
-            if (_player.Stamina < 0)
-            {
-                _player.Stamina = 0;
-            }
-        }
-        if (_player.Stamina < Weapons[IdActiveWeapon].NeedStamina)
+        if (_secondFinished >= 0.1f) // Если прошла 0.1 секунда от начала подсчета времени
         {
-            _pinaltyDamage = true;
+            if (_player.Stamina < _player.MaxStamina) // Если выносливость персонажа меньше его макимальной выносливости
+            {
+                _player.Stamina += 1; // Восстановить еденицу выносливости
+                _secondFinished = 0; // Обнулить счетчик времени
+            }
+            if (_player.Stamina < 0) // Если выносливость персонажа меньше 0
+            {
+                _player.Stamina = 0; // Обнулить выносливость
+            }
         }
-        else
+        if (_player.Stamina < _weapons[IdActiveWeapon].NeedStamina) // Если выносливость персонажа меньше выносливости, которой требуется на удар
         {
-            _pinaltyDamage = false;
+            _pinaltyDamage = true; // Установить флаг штрафа к урону в true
         }
+        else // иначе
+        {
+            _pinaltyDamage = false; // Установить флаг штрафа к урону в false
+        }
+        if (BlockStatus) BlockTime += Time.deltaTime; // если игрок в блоку, прибавлять время к блоку персонажа
     }
 
+    /// <summary>
+    /// Обновление вызывается каждый кадр, если MonoBehaviour включен.
+    /// </summary>
     private void Update()
     {
+        // Держит ли игрок блок
         if (Mouse.current.rightButton.isPressed) Block("Block");
         else Block("UnBlock");
 
+        // Обнулить движение персонажа
         if (_playerMaxSpeed == 0) GetComponent<StarterAssetsInputs>().move = new Vector2(0, 0);
 
-        float coef = (float)_player.MaxStamina / _player.Stamina;
-        float precent = 100 / coef;
-        _playerStaminaImage.fillAmount = precent / 100;
-
-        if (Vector3.Distance(transform.position, _instructor.position) <= 3)
-        {
-            _txtDialog.SetActive(true);
-        }
-        else
-        {
-            ExitFromDialog();
-        }
+        // Если игрок достаточно близко к инструктору
+        if (Vector3.Distance(transform.position, _instructor.position) <= 3) _gameManager.GameUI.ActivateTxtDialog(true); // Активировать текст, который говорит, что можно начать диалог
+        else _gameManager.GameUI.ActivateTxtDialog(false); // иначе диактивировать его
     }
 
+    /// <summary>
+    /// Настройка системы вводв
+    /// </summary>
     private void PerformedInputs()
     {
-        _input = new MyPlayerInput();
+        _input = new MyPlayerInput(); // Создать новую систему ввода
 
+        // Назначить функции к действиям в системе ввода
         _input.Player.Attack.performed += context => Attack();
         _input.Player.GetSword.performed += context => ActivateWeapon(0);
         _input.Player.GetAxe.performed += context => ActivateWeapon(1);
@@ -138,120 +163,145 @@ public class PlayerManager : MonoBehaviour
         _input.Player.OpenStats.performed += context => OpenCharacteristic();
         _input.Player.StartDialog.performed += context => StartDialog();
     }
+
+    /// <summary>
+    /// Начать диалог с интруктором
+    /// </summary>
     private void StartDialog()
     {
+        // Если игрок достаточно близко к инструктору
         if (Vector3.Distance(transform.position, _instructor.position) <= 3)
         {
-            _dialogPanel.SetActive(true);
-            Cursor.visible = true;
+            _gameManager.GameUI.StartDialog(); // Открыть диалог
+            ActivatedInputs(false); // Диактивировать ввод игрока
         }
     }
 
-    public void ExitFromDialog()
+    /// <summary>
+    /// Метод установки активности системы ввода игрока
+    /// </summary>
+    /// <param name="active">Флаг активности</param>
+    public void ActivatedInputs(bool active)
     {
-        _txtDialog.SetActive(false);
-        _txtDialog.SetActive(false);
-        _dialogPanel.SetActive(false);
-        Cursor.visible = false;
+        if (!active) // Если система ввода не активна
+        {
+            _input.Player.Disable(); // Отключить систему ввода
+            GetComponent<StarterAssetsInputs>().move = new Vector2(0, 0); // Обнулить движение персонажа
+        }
+        else
+        {
+            _input.Player.Enable(); // Включить систему ввода
+        }
+        _inputMovement.IsCanMovement = active; // Установить флаг может ли игрок перемещать персонажа
     }
 
+    /// <summary>
+    /// Открыть статистику персонажа
+    /// </summary>
     private void OpenCharacteristic()
     {
-        FindObjectOfType<UIManagerGame>().GetComponent<UIManagerGame>().UpdateInfo();
-        _characteristicWindow.SetActive(!_characteristicWindow.activeSelf);
+        _gameManager.GameUI.OpenStatistic(); // Открыть статистику персонажа
     }
 
+    /// <summary>
+    /// Проезвести пинок
+    /// </summary>
     private void StartKick()
     {
-        _animator.SetBool("Kick", true);
+        _animator.SetBool("Kick", true); // Запустить анимацию пинка
     }
 
+    /// <summary>
+    /// Пинок, вызывается с события анимации
+    /// </summary>
     private void Kick()
     {
-        _animator.SetBool("Kick", false);
-        Debug.Log("Kick");
+        _animator.SetBool("Kick", false); // Остановить анимацию пинка
     }
 
+    /// <summary>
+    /// Метод, который срабатывает при выходу в меню
+    /// </summary>
     private void ExitToMenu()
     {
-        SceneManager.LoadScene("Menu");
+        MyDataBase.UpdatePlayer(Player); // Сохранить данные персонажа
+        SceneManager.LoadScene("Menu"); // Загрузить сцену меню
     }
+
+    /// <summary>
+    /// Атака персонажа
+    /// </summary>
     private void Attack()
     {
-        if (_canAttack) NowEnemies.Clear();
-        if (AttackStatus == 0 && _canAttack)
+        if (_canAttack) // Если персонаж может нанести удар
         {
-            _canAttack = false;
-            AttackStatus = 1;
-            _player.Stamina -= Weapons[IdActiveWeapon].NeedStamina;
-            Debug.Log(_player.Stamina);
-
-            _animator.SetInteger("Attack", AttackStatus);
-        }
-        else if (AttackStatus == 1 && _canAttack)
-        {
-            _canAttack = false;
-            AttackStatus = 2;
-            _player.Stamina -= Weapons[IdActiveWeapon].NeedStamina;
-
-            _animator.SetInteger("Attack", AttackStatus);
-        }
-        else if (AttackStatus == 2 && _canAttack)
-        {
-            _canAttack = false;
-            AttackStatus = 3;
-            _player.Stamina -= Weapons[IdActiveWeapon].NeedStamina;
-
-            _animator.SetInteger("Attack", AttackStatus);
-        }
-        else if (AttackStatus == 3 && _canAttack)
-        {
-            _canAttack = false;
-            AttackStatus = 4;
-            _player.Stamina -= Weapons[IdActiveWeapon].NeedStamina;
-
-            _animator.SetInteger("Attack", AttackStatus);
-        }
-        else if (AttackStatus == 4 && _canAttack)
-        {
-            _canAttack = false;
-            AttackStatus = 0;
-            _player.Stamina -= Weapons[IdActiveWeapon].NeedStamina;
-
-            _animator.SetInteger("Attack", AttackStatus);
+            AttackCount += 1; // Прибавить в счетчик атак игрока
+            NowEnemies.Clear(); // Очистить список задетых враго
+            _canAttack = false; // Персонаж не может атаковать
+            _player.Stamina -= _weapons[IdActiveWeapon].NeedStamina; // Отнять выносливость персонажа, согласно требованиям оружия
+            if (_attackStatus == 0) // Если серия атак = 0
+            {
+                _attackStatus = 1; // Установить серию атак на 1...
+            }
+            else if (_attackStatus == 1)
+            {
+                _attackStatus = 2;
+            }
+            else if (_attackStatus == 2)
+            {
+                _attackStatus = 3;
+            }
+            else if (_attackStatus == 3)
+            {
+                _attackStatus = 4;
+            }
+            else if (_attackStatus == 4)
+            {
+                _attackStatus = 0;
+            }
+            _animator.SetInteger("Attack", _attackStatus); // Установить анимацию атаки
         }
     }
 
-
+    /// <summary>
+    /// Достать оружие
+    /// </summary>
+    /// <param name="idWeapon">ID оружия</param>
     private void ActivateWeapon(int idWeapon)
     {
-        _animator.SetBool("Equip", true);
-        IdActiveWeapon = idWeapon;
-        _playerMaxSpeed = 0;
+        _animator.SetBool("Equip", true); // Установить анимацию достования оружия
+        IdActiveWeapon = idWeapon; // Установить айди текущего оружия на сменное
+        _playerMaxSpeed = 0; // Запретить двигаться персонажу
     }
+
+    /// <summary>
+    /// Активировать оружие, вызывается из анимации
+    /// </summary>
     public void ActivateWeaponWithAnimation()
     {
-        foreach (GameObject weapon in WeaponsVisual)
+        foreach (GameObject weapon in WeaponsVisual) // Пройти по всем оружиям
         {
-            weapon.SetActive(false);
+            weapon.SetActive(false); // Диактивировать оружия
         }
-        WeaponsVisual[IdActiveWeapon].SetActive(true);
-        float bonusAttackSpeed = (float)_player.Dexterity / 200;
-        if (bonusAttackSpeed > 2.0f) bonusAttackSpeed = 2;
-        _animator.SetFloat("AttackSpeed", Weapons[IdActiveWeapon].AttackSpeed + bonusAttackSpeed);
-        _animator.SetBool("Equip", false);
-        _playerMaxSpeed = 1;
+        WeaponsVisual[IdActiveWeapon].SetActive(true); // Активировать нужное оружие
+        float bonusAttackSpeed = (float)_player.Dexterity / 200; // Расчитать бонус к скорости атаки оружия
+        if (bonusAttackSpeed > 2.0f) bonusAttackSpeed = 2; // Ораничить скорость на максимум 2
+        _animator.SetFloat("AttackSpeed", _weapons[IdActiveWeapon].AttackSpeed + bonusAttackSpeed); // Установить скорость атаки
+        _animator.SetBool("Equip", false); // Остановить анимацию достования оружия
+        _playerMaxSpeed = 1; // Вернуть возможность двигаться
     }
 
+    /// <summary>
+    /// Блок игрока
+    /// </summary>
+    /// <param name="type">Block/UnBlock</param>
     private void Block(string type)
     {
-        if (type == "Block")
+        if (type == "Block") // Если блокирует
         {
-            //Debug.Log("Block");
-
-            _animator.SetBool("Block", true);
-            BlockStatus = true;
-            if (_animator.GetFloat("Speed") > 2)
+            _animator.SetBool("Block", true); // Установить анимацию блоки
+            BlockStatus = true; // Статус блокирования = true
+            if (_animator.GetFloat("Speed") > 2) // Ограничить скорость движения игрока максимум 2
             {
                 _animator.SetFloat("Speed", 2);
                 GetComponent<StarterAssetsInputs>().sprint = false;
@@ -265,71 +315,91 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Получение повреждения персонажем
+    /// </summary>
+    /// <param name="damage">Урон по персонажу</param>
     public void GetDamage(int damage)
     {
-        _player.Health -= damage;
-        _animator.SetBool("Damaged", true);
-        if (Player.Health <= 0)
+        _player.Health -= damage; // Отнять здоровье у персонажа игрока
+        _animator.SetBool("Damaged", true); // Установить анимацию получения урона персонажем
+        if (Player.Health <= 0) // Если здоровье персонажа достигло нуля
         {
-            GameManager.EndBattle(false);
-            _animator.SetTrigger("Death");
-            _input.Player.Disable();
-            _inputMovment.IsCanMovement = false;
-            GetComponent<StarterAssetsInputs>().move = new Vector2(0, 0);
+            _gameManager.EndBattle(false); // Завершить бой
+            _animator.SetTrigger("Death"); // Установить анимацию смерти персонажа
+            ActivatedInputs(false); // Диактивировать систему ввода
         }
     }
 
+    /// <summary>
+    /// Конец получения урона, вызывается с события анимации
+    /// </summary>
     private void EndDamaged()
     {
-        _animator.SetBool("Damaged", false);
-        _canAttack = true;
-        AttackStatus = 0;
+        _animator.SetBool("Damaged", false); // Отключить анимацию получения урона
+        _canAttack = true; // Персонажа может атаковать
+        _attackStatus = 0; // Обнулить серию атак персонажа
     }
 
+    /// <summary>
+    /// Когда GameObject сталкивается с другим GameObject, Unity вызывает OnTriggerEnter.
+    /// </summary>
+    /// <param name="other">Объект, с которым взаимодействует текущий объект</param>
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "StartZone")
+        if (other.tag == "StartZone") // Если персонаж вошел в старт зону боя
         {
-            GameManager.StartBattle();
+            _gameManager.StartBattle(); // Начать бой
         }
-        else if (other.tag == "EndZone" && GameManager.isStartedBattle)
+        else if (other.tag == "EndZone" && _gameManager.isStartedBattle) // Если персонаж вошел в конечную зону  боя и бой был начат
         {
-            GameManager.EndBattle(true);
-            GameManager.CloseDoor();
+            _gameManager.EndBattle(true); // Закончить бой
+            _gameManager.CloseDoor(); // Закрыть двер арены
         }
     }
 
+    /// <summary>
+    /// Удар персонажа, вызывается событием анимации
+    /// </summary>
     private void Hit()
     {
-        _canAttack = true;
-        Debug.Log("HIT");
+        _canAttack = true; // Персонаж может атаковать
 
-        _animator.SetInteger("Attack", AttackStatus);
+        _animator.SetInteger("Attack", _attackStatus); // Установить статус серии атак
 
-        NowEnemies = NowEnemies.Distinct().ToList();
-        foreach (GameObject enemy in NowEnemies)
+        NowEnemies = NowEnemies.Distinct().ToList(); // Очистить лист задетых врагов от дубликатов, чтобы урона за один удар не защитался несколько раз
+        foreach (GameObject enemy in NowEnemies) // Пройтись по всем врагам в списке задетых врагов
         {
-            if (!_pinaltyDamage) enemy.GetComponent<Ai>().Enemy.Health -= Weapons[IdActiveWeapon].Damage + _player.Strength;
-            else enemy.GetComponent<Ai>().Enemy.Health -= 5;
-            enemy.GetComponent<Ai>().Animator.GetDamage();
-            Debug.Log(string.Format("{0} + {1}", Weapons[IdActiveWeapon].Damage, _player.Strength));
-            if (enemy.GetComponent<Ai>().Enemy.Health <= 0)
+            if (!_pinaltyDamage) enemy.GetComponent<Ai>().Enemy.Health -= _weapons[IdActiveWeapon].Damage + _player.Strength; // Если нет штрафа к урону, то нанести противнику полный урон оружия + сила персонажа
+            else enemy.GetComponent<Ai>().Enemy.Health -= 5; // Иначе нанести штрафной урон в максимум 5 едениц
+            enemy.GetComponent<Ai>().Animator.GetDamage(); // Противник получил урон
+            if (enemy.GetComponent<Ai>().Enemy.Health <= 0) // Если здоровье врага достигло нуля
             {
-                GameManager.OpenDoor();
-                GameManager.HideHealthEnemy(false);
-                Destroy(enemy, 4.20f);
+                _gameManager.OpenDoor(); // Открыть дверь арены
+                _gameManager.HideHealthEnemy(false); // Скрыть здоровье врага
+                EnemyIsDead = true; // Установить флаг, что враг побежден
             }
         }
-
-        NowEnemies.Clear();
+        NowEnemies.Clear(); // Очистить список задетых врагов
     }
+
+    /// <summary>
+    /// Окончание атаки, вызывается из анимации
+    /// </summary>
     private void EndAttack()
     {
+        _canAttack = true; // Персонаж может атаковать
+        _attackStatus = 0; // Обнулить серию атак персонажа
 
-        _canAttack = true;
-        AttackStatus = 0;
-        Debug.Log("END");
+        _animator.SetInteger("Attack", _attackStatus); // Установить серию атак персонажа
+    }
 
-        _animator.SetInteger("Attack", AttackStatus);
+    /// <summary>
+    /// Этот метод срабатывает после смерти персонажа, вызывается из события анимации
+    /// </summary>
+    private void AfterDeath()
+    {
+        MyDataBase.UpdatePlayer(Player); // Обновить данные персонажа(Сохранить их в базу данных)
+        SceneManager.LoadScene("Playground"); // Перезагрузить сцену
     }
 }

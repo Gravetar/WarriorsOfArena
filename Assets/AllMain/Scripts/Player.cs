@@ -1,6 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+/*
+Класс персонажа
+
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
 
 public class Player
 {
@@ -8,6 +13,7 @@ public class Player
     private string _name;
 
     private int _level;
+    private int _oldlevel;
     private int _experience;
     private int _freeXpPoints;
 
@@ -24,6 +30,7 @@ public class Player
         _name = name;
         _experience = experience;
         _level = experience / 500;
+        _oldlevel = _level;
         _freeXpPoints = freeXpPoints;
 
         _strength = strength;
@@ -35,10 +42,20 @@ public class Player
         _maxStamina = _stamina;
     }
 
+    public void CheckXp()
+    {
+        _level = _experience / 500;
+        if (_oldlevel < _level)
+        {
+            FreeXpPoints += (_level - _oldlevel) * 5;
+            _oldlevel = _level;
+        }
+    }
+
     public int Id { get { return _id; } }
     public string Name { get { return _name; } }
     public int Level { get { return _level; } }
-    public int FreeXpPoints { get { return _freeXpPoints; } }
+    public int FreeXpPoints { get { return _freeXpPoints; } set { _freeXpPoints = value; } }
     public int Health { get { return _health; } set { _health = value; } }
     public int MaxHealth { get { return _maxHealth; } }
     public int Stamina { get { return _stamina; } set { _stamina = value; } }

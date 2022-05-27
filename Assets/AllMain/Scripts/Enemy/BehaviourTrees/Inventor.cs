@@ -1,6 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+/*
+Inventor дерева поведения
+
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
 
 public class Inventor : Node
 {

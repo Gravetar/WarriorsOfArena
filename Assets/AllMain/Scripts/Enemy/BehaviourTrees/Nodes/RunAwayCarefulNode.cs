@@ -1,29 +1,51 @@
+/*
+Узел Убегающего дерева поведения
+
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
+
 public class RunAwayCarefulNode : Node
 {
-    private EnemyAi _ai;
-    private ActionPlayer _actionPlayer;
-    private int _favoriteIdWeaponPlayer;
+    private Ai _ai;// Система ИИ
+    private ActionPlayer _actionPlayer;// Система ИИ
+    private int _favoriteIdWeaponPlayer;// Предпочитаемое оружие игрока
 
-    public RunAwayCarefulNode(EnemyAi ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
+    /// <summary>
+    /// Конструктор
+    /// </summary>
+    /// <param name="ai">Система ИИ</param>
+    /// <param name="actionPlayer">// Предпочитаемое действие игрока</param>
+    /// <param name="favoriteIdWeaponPlayer">// Предпочитаемое оружие игрока</param>
+    public RunAwayCarefulNode(Ai ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
     {
         _ai = ai;
         _actionPlayer = actionPlayer;
         _favoriteIdWeaponPlayer = favoriteIdWeaponPlayer;
     }
 
+    /// <summary>
+    /// Оценка узла
+    /// </summary>
+    /// <returns>Состояние узла</returns>
     public override NodeState Evaluate()
     {
-        if (_actionPlayer == ActionPlayer.Attack && _favoriteIdWeaponPlayer == 2)
+        if (_actionPlayer == ActionPlayer.Attack && _favoriteIdWeaponPlayer == 1) // Если игрок предпочитал атаковать и его предпочитаемое оружие - топор
         {
-            _ai.SetWeapon(1);
+            _ai.SetWeapon(0);// Установить оружие врага - меч
+
+            //Установить коэффициенты силы и ловкости
             _ai.SetStrength(1);
             _ai.SetDexterity(3);
-            _ai.EnemyTactic = EnemyAi.TacticEnemy.Passive;
-            return NodeState.SOCCESS;
+
+            _ai.EnemyTactic = TacticEnemy.Passive; //Установить тактику пассивную
+            return NodeState.SOCCESS;// Успешное выполнение узла
         }
         else
         {
-            return NodeState.FAILURE;
+            return NodeState.FAILURE;// Провал выполнения узла
         }
     }
 }

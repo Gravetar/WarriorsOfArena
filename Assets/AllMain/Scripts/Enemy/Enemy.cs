@@ -1,5 +1,11 @@
+/*
+Класс противника
 
-using static EnemyAi;
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
 
 public class Enemy
 {
@@ -37,4 +43,5 @@ public class Enemy
     public int Strength { get { return _strength; } set { _strength = value; } }
     public int Dexterity { get { return _dexterity; } set { _dexterity = value; } }
     public int Weapon { get { return _weapon; } set { _weapon = value; } }
+    public TacticEnemy Tactic { get { return _tactic; } set { _tactic = value; } }
 }

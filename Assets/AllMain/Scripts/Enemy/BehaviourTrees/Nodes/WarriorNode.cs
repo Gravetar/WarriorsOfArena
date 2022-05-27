@@ -1,29 +1,51 @@
+/*
+Узел воина дерева поведения
+
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
+
 public class WarriorNode : Node
 {
-    private EnemyAi _ai;
-    private ActionPlayer _actionPlayer;
-    private int _favoriteIdWeaponPlayer;
+    private Ai _ai; // Система ИИ
+    private ActionPlayer _actionPlayer; // Предпочитаемое действие игрока
+    private int _favoriteIdWeaponPlayer; // Предпочитаемое оружие игрока
 
-    public WarriorNode(EnemyAi ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
+    /// <summary>
+    /// Конструктор
+    /// </summary>
+    /// <param name="ai">Система ИИ</param>
+    /// <param name="actionPlayer">Предпочитаемое действие игрока</param>
+    /// <param name="favoriteIdWeaponPlayer">Предпочитаемое оружие игрока</param>
+    public WarriorNode(Ai ai, ActionPlayer actionPlayer, int favoriteIdWeaponPlayer)
     {
         _ai = ai;
         _actionPlayer = actionPlayer;
         _favoriteIdWeaponPlayer = favoriteIdWeaponPlayer;
     }
 
+    /// <summary>
+    /// Оценка узла
+    /// </summary>
+    /// <returns>Состояние узла</returns>
     public override NodeState Evaluate()
     {
-        if (_actionPlayer == ActionPlayer.Attack && _favoriteIdWeaponPlayer == 1)
+        if (_actionPlayer == ActionPlayer.Attack && _favoriteIdWeaponPlayer == 0) // Если игрок предпочитал атаковать и его предпочитаемое оружие - меч
         {
-            _ai.SetWeapon(3);
+            _ai.SetWeapon(2); // Установить оружие топор
+
+            //Установить коэффициенты силы и ловкости 
             _ai.SetStrength(2);
             _ai.SetDexterity(2);
-            _ai.EnemyTactic = EnemyAi.TacticEnemy.Passive;
-            return NodeState.SOCCESS;
+
+            _ai.EnemyTactic = TacticEnemy.Passive;//Установить тактику пассивную
+            return NodeState.SOCCESS; // Успешное выполнение узла
         }
         else
         {
-            return NodeState.FAILURE;
+            return NodeState.FAILURE; // Провал выполнения узла
         }
     }
 }

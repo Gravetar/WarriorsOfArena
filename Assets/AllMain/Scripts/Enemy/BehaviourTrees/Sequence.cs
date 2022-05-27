@@ -1,6 +1,13 @@
-using System.Collections;
+/*
+Sequence дерева поведения
+
+Панасенко Сергей Сергеевич
+(с) Панасенко Сергей
+Создан: 2022 Изменен: 26.05.2022
+Контактная информация: Kaylan00@mail.ru
+*/
+
 using System.Collections.Generic;
-using UnityEngine;
 
 public class Sequence : Node
 {
